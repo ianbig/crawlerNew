@@ -17,26 +17,27 @@
 #include "HashTable.h"
 
 #define HTML_QUEUE_SIZE 1073741824
-#define HASH_MAX_SIZE 1073741824
+#define HASH_MAX_SIZE 67107000
 
 struct MemoryStruct {
     char *buffer;
     size_t size;
     bool flag;
-    std::string url;
+    char *url;
 };
 
 class Parser {
     std::vector<struct MemoryStruct> htmlQueue;
     std::vector<std::string> whiteList;
     size_t Size_OF_htmlQueue;
+    std::vector<std::string> Parser_Master_Cache;
     HashTable tb;
 public:
     Parser();
     ~Parser();
     int fetch(const char *url);
     size_t extractLink(char *buffer);
-    std::vector<std::string> Parser_Master_Cache;
+
 };
 
 

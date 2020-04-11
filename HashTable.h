@@ -10,18 +10,28 @@
 #include "md5/src/md5.h"
 #define MAXTABLE 1000
 
+#include <fstream>
+#include <filesystem>
+
+
+namespace fs = std::filesystem;
+
 class HashTable {
     off_t hash33(const std::string md5);
     size_t tableSize;
     struct Node {
-        std::string md5;
+        char *md5;
+        char *url;
     };
    std::vector<struct Node> table[MAXTABLE];
+   int hashIndex[MAXTABLE];
+   unsigned int offet;
 public:
-    //HashTable();
+    HashTable();
     //~HashTable();
     int contain(std::string searchMD5);
-    bool insert(std::string insertMD5);
+    void insert(std::string insertMD5);
+    void writeDB(std::string pathDB);
     //size_t size();
 };
 

@@ -6,10 +6,17 @@
 
 Parser::Parser() {
     Size_OF_htmlQueue = 0;
-    whiteList.push_back("https:\\/\\/[\\w]*.ettoday\\.net[\\/|\\w\\/.\\?|=]*");
+    whiteList.push_back("https:\\/\\/[\\w]*.ettoday\\.net[\\/|\\w\\/.\\?|=]+");
 }
 Parser::~Parser() {
    // free up chunk memory
+   struct MemoryStruct tmpChunk;
+   while(!htmlQueue.empty()) {
+       tmpChunk = htmlQueue.front();
+       delete [] tmpChunk.buffer;
+       delete [] tmpChunk.url;
+       htmlQueue.erase(htmlQueue.begin());
+   }
 }
 
 
@@ -18,10 +25,13 @@ int Parser::fetch(const char *url) {
     CURL *fetcher = NULL;
     struct MemoryStruct chunk;
     std::string tmpList;
-
+    // initialize chunk;
     chunk.size = 0;
     chunk.buffer = NULL;
-    chunk.url = url;
+    chunk.url = new char[strlen(url) + 1];
+    memmove(chunk.url, url, strlen(url));
+    chunk.url[strlen(url)] = 0;
+    // see weather to save this chunk
     for(int i = 0; i < whiteList.size(); i++) {
         tmpList = whiteList.at(i);
         if( std::regex_match(url, std::regex(tmpList)) ) chunk.flag = true;
@@ -47,11 +57,22 @@ int Parser::fetch(const char *url) {
 
     /* start to extract ink */
     extractLink(chunk.buffer);
+    int i = 0;
+    while (i < Parser_Master_Cache.size()) {
+        std::cout << Parser_Master_Cache.at(1) << std::endl;
+        i++;
+    }
 
 
     if(chunk.flag == true) {
         htmlQueue.push_back(chunk);
         Size_OF_htmlQueue += chunk.size;
+    }
+
+    else {
+        std::cout << chunk.url << std::endl;
+        delete [] chunk.buffer;
+        delete [] chunk.url;
     }
     return 0;
 }
@@ -74,9 +95,10 @@ size_t Parser::extractLink(char *buffer) {
             url = "https://www.ettoday.net" + url;
         }
 
-        if(! tb.contain(url)) {
+        if( tb.contain(url) < 0) {
             tb.insert(url);
             Parser_Master_Cache.push_back(url);
+            std::cout << Parser_Master_Cache.back()<< std::endl;
         }
     }
 }
