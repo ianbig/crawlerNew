@@ -1,1 +1,4 @@
 
+[submodule "md5"]
+	path = md5
+	url = https://github.com/JieweiWei/md5
