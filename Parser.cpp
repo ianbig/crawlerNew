@@ -5,36 +5,34 @@
 #include "Parser.h"
 
 Parser::Parser() {
-    Size_OF_htmlQueue = 0;
+    Size_OF_RecordQueue = 0;
     whiteList.push_back("https:\\/\\/[\\w]*.ettoday\\.net[\\/|\\w\\/.\\?|=]+");
-}
-Parser::~Parser() {
-   // free up chunk memory
-   struct MemoryStruct tmpChunk;
-   while(!htmlQueue.empty()) {
-       tmpChunk = htmlQueue.front();
-       delete [] tmpChunk.buffer;
-       delete [] tmpChunk.url;
-       htmlQueue.erase(htmlQueue.begin());
-   }
+    blackList.push_back("facebook");
+    blackList.push_back("instagram");
 }
 
-
-
+// 0 means success fetch; -1 means blackList website not fetch
 int Parser::fetch(const char *url) {
     CURL *fetcher = NULL;
     struct MemoryStruct chunk;
     std::string tmpList;
     // initialize chunk;
-    chunk.size = 0;
-    chunk.buffer = NULL;
+
     chunk.url = new char[strlen(url) + 1];
     memmove(chunk.url, url, strlen(url));
     chunk.url[strlen(url)] = 0;
+
     // see weather to save this chunk
     for(int i = 0; i < whiteList.size(); i++) {
         tmpList = whiteList.at(i);
         if( std::regex_match(url, std::regex(tmpList)) ) chunk.flag = true;
+    }
+
+    // not fetch black List
+    for(int i = 0; i < blackList.size(); i++) {
+        tmpList = blackList.at(i);
+        if( findCaseInsensitive(url, tmpList) != std::string::npos )
+            return -1;
     }
 
     /* fetch the html into memory */
@@ -55,24 +53,28 @@ int Parser::fetch(const char *url) {
     curl_global_cleanup();
     /* ======================== */
 
-    /* start to extract ink */
+    /* start to extract important infortmation: link, maintex, title*/
     extractLink(chunk.buffer);
+   // mainTexExtration(chunk.buffer);
     int i = 0;
+
     while (i < Parser_Master_Cache.size()) {
-        std::cout << Parser_Master_Cache.at(1) << std::endl;
+        std::cout << Parser_Master_Cache.at(i) << std::endl;
         i++;
     }
 
 
+
     if(chunk.flag == true) {
-        htmlQueue.push_back(chunk);
-        Size_OF_htmlQueue += chunk.size;
+        RecordQueue.push_back(chunk);
+        Size_OF_RecordQueue += chunk.size;
+        std::ofstream fs;
+        fs.open("./test.html", std::ios::out);
+        fs << chunk.buffer;
     }
 
     else {
         std::cout << chunk.url << std::endl;
-        delete [] chunk.buffer;
-        delete [] chunk.url;
     }
     return 0;
 }
@@ -119,4 +121,10 @@ size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *user
     mem->buffer[mem->size] = 0;
 
     return realsize;
+}
+
+size_t findCaseInsensitive(std::string data, std::string toSearch) {
+    std::transform(data.begin(), data.end(), data.begin(), ::tolower);
+    std::transform(toSearch.begin(), toSearch.end(), toSearch.begin(), ::tolower);
+    return data.find(toSearch);
 }

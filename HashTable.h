@@ -22,6 +22,22 @@ class HashTable {
     struct Node {
         char *md5;
         char *url;
+        Node() {
+            md5 = NULL;
+            url = NULL;
+        }
+        Node(const Node &tmp) {
+            size_t urlLen = strlen(tmp.url);
+            size_t md5Len = strlen(tmp.md5);
+            url = new char[urlLen];
+            md5 = new char[md5Len];
+            memmove(url, tmp.url, urlLen);
+            memmove(md5, tmp.md5, md5Len);
+        }
+        ~Node() {
+            if(url) delete [] url;
+            if(md5) delete [] md5;
+        }
     };
    std::vector<struct Node> table[MAXTABLE];
    int hashIndex[MAXTABLE];

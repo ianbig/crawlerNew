@@ -9,6 +9,7 @@ HashTable::HashTable() {
     offet = 0;
 }
 
+// -2 means empty in linked list -1 means not found
 int HashTable::contain(std::string searchURL) {
     std::string searchMD5 = MD5(searchURL).toStr();
     size_t index = hash33(searchMD5);
@@ -36,8 +37,7 @@ void HashTable::insert(std::string insertURL) {
     newElement.url[insertURL.length()] = 0;
 
     if(index == -1 || index == -2) {
-        if(index == -2)
-            hashIndex[offet++] = (index = hash33(insertMD5) );
+        hashIndex[offet++] = (index = hash33(insertMD5) );
 
     }
     table[index].push_back(newElement);
@@ -78,8 +78,8 @@ void HashTable::writeDB(std::string pathDB) {
         tmp = hashIndex[offIndex++];
         while(!table[tmp].empty()) {
             fptr << table[tmp].front().url << std::endl;
-            delete [] table[tmp].front().url;
-            delete [] table[tmp].front().md5;
+            if(table[tmp].front().url) delete [] table[tmp].front().url;
+            if(table[tmp].front().md5) delete [] table[tmp].front().md5;
             table[tmp].erase(table[tmp].begin());
         }
     }
