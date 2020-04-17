@@ -14,6 +14,8 @@ int HashTable::contain(std::string searchURL) {
     std::string searchMD5 = MD5(searchURL).toStr();
     size_t index = hash33(searchMD5);
 
+    std::cout << searchMD5.size() << std::endl;
+
     if(table[index].empty()) return -2;
 
     for(std::vector<Node>::iterator iter = table[index].begin(); iter != table[index].end(); iter++) {

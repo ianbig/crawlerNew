@@ -14,34 +14,84 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "HashTable.h"
+#include <assert.h>
+#include "DataBase.h"
+#include "gumbo.h"
+#include "md5/src/md5.h"
 
-#define HTML_QUEUE_SIZE 1073741824
-#define HASH_MAX_SIZE 67107000
+
+#define FETCH_SUCCESS 0
+#define ERROR_MAINTEX_NULL -1
+#define ERROR_BLACKLIST_BLOCK -2
 
 struct MemoryStruct {
     char *buffer;
     size_t size;
     bool flag;
     char *url;
+    char *title;
     MemoryStruct() {
         buffer = NULL;
         size = false;
         flag = 0;
         url = NULL;
+        title = NULL;
     }
     ~MemoryStruct() {
-        if(buffer != NULL)  delete [] buffer;
-        if(url != NULL) delete [] url;
+        if(buffer != NULL)  {
+            delete [] buffer;
+            buffer = NULL;
+        }
+        if(url != NULL) {
+            delete [] url;
+            url = NULL;
+        }
+        if(title != NULL) {
+            delete [] title;
+            title = NULL;
+        }
     }
     MemoryStruct(const MemoryStruct &tmp) {
         buffer = new char[strlen(tmp.buffer) + 1];
         url = new char[strlen(tmp.url) + 1];
+        title = new char[strlen(tmp.title) + 1];
 
         memmove(buffer, tmp.buffer, strlen(tmp.buffer));
         memmove(url, tmp.url, strlen(tmp.url));
+        memmove(title, tmp.title, strlen(tmp.title));
+        buffer[strlen(tmp.buffer)] = 0;
+        url[strlen(tmp.url)] = 0;
+        title[strlen(tmp.title)] = 0;
         size = tmp.size;
         flag = tmp.flag;
+    }
+    struct MemoryStruct& operator=(struct MemoryStruct &rhs) {
+        if(this == &rhs) return *this;
+
+        if(buffer != NULL) {
+            delete [] buffer;
+        }
+
+        if(url != NULL) {
+            delete [] url;
+        }
+
+        if(title != NULL) {
+            delete [] title;
+        }
+        buffer = new char[strlen(rhs.buffer) + 1];
+        url = new char[strlen(rhs.url) + 1];
+        title = new char[strlen(rhs.title) + 1];
+        memmove(buffer, rhs.buffer, strlen(rhs.buffer));
+        memmove(url, rhs.url, strlen(rhs.url));
+        memmove(title, rhs.title, strlen(rhs.title));
+        buffer[strlen(rhs.buffer)] = 0;
+        url[strlen(rhs.url)] = 0;
+        title[strlen(rhs.title)] = 0;
+        size = rhs.size;
+        flag = rhs.flag;
+
+        return *this;
     }
 };
 
@@ -51,13 +101,20 @@ class Parser {
     std::vector<std::string> blackList;
     size_t Size_OF_RecordQueue;
     std::vector<std::string> Parser_Master_Cache;
-    HashTable tb;
+    DataBase tb;
+    std::string cleantext(GumboNode* node);
+    void getMainTex(GumboNode *root, char *url);
+    void textExtract(GumboNode *root, char *url);
+    GumboNode* diveNode(GumboNode *child_root, const char *desiredValue);
+
 public:
     Parser();
     int fetch(const char *url);
     size_t extractLink(char *buffer);
-    //size_t mainTexExtration(char *buffer);
-
+    int mainTexExtration(char *buffer, char *url);
+    void write_out_record(std::string filePath);
+    void write_out_url(std::string filePath);
+    size_t get_record_queue_size();
 };
 
 

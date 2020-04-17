@@ -1,0 +1,3 @@
+/Users/ianliu/Desktop/crawler-multi-thread/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/Users/ianliu/Desktop/crawler-multi-thread/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/ianliu/Desktop/crawler-multi-thread/cmake-build-debug/CMakeFiles/crawler_multi_thread.dir
