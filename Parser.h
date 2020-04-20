@@ -23,6 +23,7 @@
 #define FETCH_SUCCESS 0
 #define ERROR_MAINTEX_NULL -1
 #define ERROR_BLACKLIST_BLOCK -2
+#define ERROR_NO_CONTENT_FETCH -3
 
 struct MemoryStruct {
     char *buffer;
@@ -106,6 +107,7 @@ class Parser {
     void getMainTex(GumboNode *root, char *url);
     void textExtract(GumboNode *root, char *url);
     GumboNode* diveNode(GumboNode *child_root, const char *desiredValue);
+    size_t size_parser_master_cache;
 
 public:
     Parser();
@@ -115,6 +117,8 @@ public:
     void write_out_record(std::string filePath);
     void write_out_url(std::string filePath);
     size_t get_record_queue_size();
+    size_t get_record_amount();
+    size_t get_master_parser_size();
 };
 
 
