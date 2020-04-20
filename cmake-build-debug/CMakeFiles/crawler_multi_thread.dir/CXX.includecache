@@ -6,11 +6,21 @@
 
 #IncludeRegexTransform: 
 
+/Users/ianliu/Desktop/crawler-multi-thread/DataBase.cpp
+DataBase.h
+/Users/ianliu/Desktop/crawler-multi-thread/DataBase.h
+
 /Users/ianliu/Desktop/crawler-multi-thread/DataBase.h
 iostream
 -
 mysqlx/xdevapi.h
 -
+
+/Users/ianliu/Desktop/crawler-multi-thread/Parser.cpp
+gumbo.h
+-
+Parser.h
+/Users/ianliu/Desktop/crawler-multi-thread/Parser.h
 
 /Users/ianliu/Desktop/crawler-multi-thread/Parser.h
 iostream
@@ -44,6 +54,10 @@ md5/src/md5.h
 master.h
 /Users/ianliu/Desktop/crawler-multi-thread/master.h
 
+/Users/ianliu/Desktop/crawler-multi-thread/master.cpp
+master.h
+/Users/ianliu/Desktop/crawler-multi-thread/master.h
+
 /Users/ianliu/Desktop/crawler-multi-thread/master.h
 stdlib.h
 -
@@ -53,8 +67,16 @@ vector
 -
 fstream
 -
+sys/time.h
+-
+unistd.h
+-
 Parser.h
 /Users/ianliu/Desktop/crawler-multi-thread/Parser.h
+
+/Users/ianliu/Desktop/crawler-multi-thread/md5/src/md5.cpp
+md5.h
+/Users/ianliu/Desktop/crawler-multi-thread/md5/src/md5.h
 
 /Users/ianliu/Desktop/crawler-multi-thread/md5/src/md5.h
 string
