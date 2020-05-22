@@ -1,8 +1,8 @@
 CC = g++
 OBJ = main.o crawler.o parser.o database.o
 REF_FILE = md5/src/md5.cpp
-CFLAG = -g -lmysqlcppconn8 -lcurl
-INCLUDE = /usr/local/include
+CFLAG = -g -lmysqlcppconn -lcurl
+INCLUDE = /usr/include
 LIB = /usr/local/lib
 CXX_STANDARD = -std=c++17
 
