@@ -2,8 +2,8 @@
 // Created by Ian Liu on 2020/4/7.
 //
 
-#ifndef CRAWLER_MULTI_THREAD_PARSER_H
-#define CRAWLER_MULTI_THREAD_PARSER_H
+#ifndef CRAWLER_PARSER_H
+#define CRAWLER_PARSER_H
 
 #include <iostream>
 #include <fstream>
@@ -103,17 +103,13 @@ class Parser {
     size_t Size_OF_RecordQueue;
     std::vector<std::string> Parser_Master_Cache;
     DataBase tb;
-    std::string cleantext(GumboNode* node);
-    void getMainTex(GumboNode *root, char *url);
-    void textExtract(GumboNode *root, char *url);
-    GumboNode* diveNode(GumboNode *child_root, const char *desiredValue);
     size_t size_parser_master_cache;
 
 public:
     Parser();
     int fetch(const char *url);
     size_t extractLink(char *buffer);
-    int mainTexExtration(char *buffer, char *url);
+    //int mainTexExtration(char *buffer, char *url);
     void write_out_record(std::string filePath);
     void write_out_url(std::string filePath);
     size_t get_record_queue_size();
