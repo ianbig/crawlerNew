@@ -2,3 +2,6 @@
 [submodule "md5"]
 	path = md5
 	url = https://github.com/JieweiWei/md5.git
+[submodule "gumbo-parser"]
+	path = gumbo-parser
+	url = https://github.com/google/gumbo-parser.git
