@@ -68,13 +68,14 @@ int Parser::fetch(const char *url) {
 
     /* start to extract important infortmation: link, maintex, title*/
     if(chunk.buffer == NULL) return ERROR_NO_CONTENT_FETCH;
-    extractLink(chunk.buffer);
+    //extractLink(chunk.buffer);
     if(chunk.flag == true)
         //mainTexExtration(chunk.buffer, chunk.url);
 
 
     return FETCH_SUCCESS;
 }
+
 
 // test + extract link
 size_t Parser::extractLink(char *buffer) {
