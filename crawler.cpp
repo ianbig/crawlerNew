@@ -29,6 +29,7 @@ int crawler::start() {
 
     std::cout << "=========start craweling==========" << std::endl;
 
+    
     while(real_record_size < MAX_RECORD) {
         // the reason for the use of outer loop is to automatically refresh queue in parser
         Parser parser;
@@ -38,6 +39,10 @@ int crawler::start() {
         size_t master_parser_size = 0;
 
         fstream = fopen("./DB/seed.log", "r");
+        if(!fstream) {
+            std::cerr << "ERROR: seed.log not exist" << std::endl;
+            return ERROR_SEED_EMPTY;
+        }
         while ((file_check = getline(&line, &get_line_size, fstream) ) != -1) {
             // allocate memory
             line_size = strlen(line);
@@ -49,7 +54,8 @@ int crawler::start() {
             line = NULL;
         }
         fclose(fstream);
-
+        break;
+        /*
         if(!record_size_not_exceed) {
             fstream = fopen("./DB/uncommit.log", "r");
             while ((file_check = getline(&line, &get_line_size, fstream) ) != -1) {
@@ -68,8 +74,8 @@ int crawler::start() {
         if(commitQueue.empty()) {
             std::cerr << "ERROR: seed.log is empty" << std::endl;
             return  ERROR_SEED_EMPTY;
-        }
-
+        }*/
+/*
         while(! commitQueue.empty() &&  ( record_size_not_exceed = (record_size <= MAX_RECORD_SIZE && master_parser_size <= MAX_URL_CAPACITY) ) ){
             tmp_url = commitQueue.front();
             tmp_url = strtok(tmp_url,"\n");
@@ -100,7 +106,9 @@ int crawler::start() {
     }
     std::cout << "====== craweling finish =====" << std::endl;
     std::cout << "Current Stored Record: " << real_record_size << std::endl;
+    */
 }
+} // delete after not commeting while loop
 
 
 void crawler::write_out_commit_queue(std::string filePath) {

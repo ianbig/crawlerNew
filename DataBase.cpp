@@ -5,7 +5,7 @@
 #include "DataBase.h"
 
 DataBase::DataBase(): sess("localhost", 33060, "root", "cht123456") {
-    sess.sql("USE craweler").execute();
+    sess.sql("USE crawler").execute();
 }
 
 
