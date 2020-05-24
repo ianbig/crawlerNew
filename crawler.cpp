@@ -44,7 +44,6 @@ int crawler::start() {
             return ERROR_DOCUMENT_NOT_EXISTS;
         }
         while ((file_check = getline(&line, &get_line_size, fstream) ) != -1) {
-            // allocate memory
             line_size = strlen(line);
             copy_line = new char[line_size + 1];
             copy_line[line_size] = 0;
@@ -52,7 +51,7 @@ int crawler::start() {
             commitQueue.push_back(copy_line);
             free(line);
             line = NULL;
-        }
+        } //load data in seed.log
         fclose(fstream);
 
         if(!record_size_not_exceed) {
@@ -64,7 +63,6 @@ int crawler::start() {
             }
 
             while ((file_check = getline(&line, &get_line_size, fstream) ) != -1) {
-                // allocate memory
                 line_size = strlen(line);
                 copy_line = new char[line_size + 1];
                 copy_line[line_size] = 0;
@@ -72,7 +70,7 @@ int crawler::start() {
                 commitQueue.push_back(copy_line);
                 free(line);
                 line = NULL;
-            }
+            } //load url in commit.log
             fclose(fstream);
         }
 

@@ -30,7 +30,6 @@ int Parser::fetch(const char *url) {
     struct MemoryStruct chunk;
     std::string tmpList;
     // initialize chunk;
-
     chunk.url = new char[strlen(url) + 1];
     memmove(chunk.url, url, strlen(url));
     chunk.url[strlen(url)] = 0;
@@ -68,7 +67,7 @@ int Parser::fetch(const char *url) {
 
     /* start to extract important infortmation: link, maintex, title*/
     if(chunk.buffer == NULL) return ERROR_NO_CONTENT_FETCH;
-    //extractLink(chunk.buffer);
+    extractLink(chunk.buffer);
     if(chunk.flag == true)
         //mainTexExtration(chunk.buffer, chunk.url);
 
