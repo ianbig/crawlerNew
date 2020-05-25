@@ -6,7 +6,6 @@ History:
 
 #include "crawler.h"
 
-// when crawler is terminated, it would encounter following situation 
 crawler::~crawler() {
     char *tmp;
     for(int i = 0; i < commitQueue.size(); i++) {
