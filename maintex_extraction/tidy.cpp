@@ -7,16 +7,12 @@
 #include <string>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
-#include <boost/foreach.hpp>
 #include <sstream>
 #include <map>
+#include "tree.h"
 
 namespace pt = boost::property_tree;
 std::map<std::string, int> stack;
-
-void cleanNode(pt::ptree &root) {
-    
-}
 
 
 void Tagcount(pt::ptree &root) {
@@ -37,8 +33,8 @@ int main (int argc, char **argv) {
     std::ofstream out;
     char *buf;
 
-    fs.open("/Users/ianliu/Desktop/crawlerNew/maintex_extraction/CETD/BBC/original/99.htm", std::ios::in);
-    out.open("/Users/ianliu/Desktop/crawlerNew/maintex_extraction/output/0.xhtml", std::ios::out);
+    fs.open("/Users/ianliu/Desktop/CETD/BBC/original/99.htm", std::ios::in);
+    out.open("/Users/ianliu/Desktop/crawlerNew/maintex_extraction/output/tagCount.txt", std::ios::out);
 
     if(!fs.is_open()) {
         std::cerr << "ERROR: File not open" << std::endl;
@@ -81,44 +77,37 @@ int main (int argc, char **argv) {
     if ( rc >= 0 )
         rc = tidySaveBuffer( doc, &output );          // Pretty Print
     
-    /*
+    
     if( rc >= 0 ) {
         if(rc > 0 ) std::cerr << "ERROR: " << errbuf.bp << std::endl;
         out << output.bp;
         out.close();
     }
-    */
-
+    
    
     // parse DOM and compute textdensity (Ci / Ti)
-    boost::property_tree::ptree DOM_tree;
+    
+    boost::property_tree::ptree tree;
     std::stringstream ss;
     ss << output.bp;
 
     try {
-        boost::property_tree::xml_parser::read_xml(ss, DOM_tree);
+        boost::property_tree::xml_parser::read_xml(ss, tree);
     }
 
     catch(const boost::property_tree::xml_parser::xml_parser_error& ex) {
         std::cerr << ex.message() << std::endl;
     }
 
-    std::map<std::string, int>::iterator it;
-    
 
-
-    //clean script, comment, style first
-    for(auto it = DOM_tree.begin(); it != DOM_tree.end(); it++)
-    {
-        Tagcount(it->second);
-    }
-
-
-    for(it = stack.begin(); it != stack.end(); it++ )
-    {
-        std::cout << " tag name: " << it->first << " count: " << it->second << std::endl;
-    }
-
+    tree_node *root;
+    std::cout << "========Create Tree=========" << std::endl;
+    root = create_dom_tree(tree, "root"); // root means on top of tree = first call of function
+    DOM_tree droot(root);
+    std::cout << "Tree Built Complete" << std::endl;
+    std::cout << "========Traverse Tree=========" << std::endl;
+    droot.get_threshold(droot.root);
+    std::cout << "Threshold is " << droot.threshold << std::endl;
     // free error
     tidyBufFree( &output );
     tidyBufFree( &errbuf );
