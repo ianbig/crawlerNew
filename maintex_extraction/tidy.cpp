@@ -28,24 +28,32 @@ void Tagcount(pt::ptree &root) {
     }
 }
 
+
 int main (int argc, char **argv) {
     std::ifstream fs;
+    std::ifstream golden_text;
     std::ofstream out;
-    char *buf;
+    char *buf, *gold_buf;
 
-    fs.open("/Users/ianliu/Desktop/CETD/BBC/original/99.htm", std::ios::in);
-    out.open("/Users/ianliu/Desktop/crawlerNew/maintex_extraction/output/tagCount.txt", std::ios::out);
+    fs.open("/Users/ianliu/Desktop/crawlerNew/maintex_extraction/output/0.htm", std::ios::in);
+    golden_text.open("/Users/ianliu/Desktop/crawlerNew/maintex_extraction/output/gold.txt", std::ios::in);
+    out.open("/Users/ianliu/Desktop/crawlerNew/maintex_extraction/output/0.xhtml", std::ios::out);
 
     if(!fs.is_open()) {
-        std::cerr << "ERROR: File not open" << std::endl;
+        std::cerr << "ERROR: input file not open" << std::endl;
         exit(EXIT_FAILURE);
+    }
+
+    if(!golden_text.is_open()) {
+        std::cerr << "ERROR: golden text not open" << std::endl;
     }
 
     if(!out.is_open()) {
-        std::cerr << "ERROR: File not open" << std::endl;
+        std::cerr << "ERROR: output xhtml not open" << std::endl;
         exit(EXIT_FAILURE);
     }
 
+    // allocate input array
     fs.seekg(0, fs.end);
     size_t length = fs.tellg();
     fs.seekg(0, fs.beg);
@@ -55,14 +63,27 @@ int main (int argc, char **argv) {
     buf[length] = '\0';
     fs.close();
 
+    //allocate golden text array
+    golden_text.seekg(0, golden_text.end);
+    size_t gold_length = golden_text.tellg();
+    golden_text.seekg(0, golden_text.beg);
+
+    gold_buf = new char [gold_length + 1];
+    gold_buf[gold_length] = 0;
+    golden_text.read(gold_buf, gold_length);
+    golden_text.close();
+
     // start using tidy
     TidyBuffer output = {0};
     TidyBuffer errbuf = {0};
     int rc = -1;
     bool ok;
+    ctmbstr encoding = "utf8";
 
     TidyDoc doc = tidyCreate(); // Initialize "document"
     ok = tidyOptSetBool(doc, TidyXmlOut, yes); // Convert to XHTML
+    tidySetCharEncoding(doc,encoding);
+    
     if(ok)
         rc = tidySetErrorBuffer(doc, &errbuf); // Capture diagnostics
     if(rc >= 0 ) {
@@ -105,10 +126,15 @@ int main (int argc, char **argv) {
     root = create_dom_tree(tree, "root"); // root means on top of tree = first call of function
     DOM_tree droot(root);
     std::cout << "Tree Built Complete" << std::endl;
-    std::cout << "========Traverse Tree=========" << std::endl;
-    droot.get_threshold(droot.root);
-    std::cout << "Threshold is " << droot.threshold << std::endl;
+    std::cout << "========Extract Content=========" << std::endl;
+    //droot.traverse(droot.root);
+    droot.contentExtraction();
+    std::cout << droot.content_buffer << std::endl;
+    std::cout << "======= Score result =======" << std::endl;
+    droot.calculate_score(gold_buf);
     // free error
+    delete [] buf;
+    delete [] gold_buf;
     tidyBufFree( &output );
     tidyBufFree( &errbuf );
     tidyRelease( doc );

@@ -61,7 +61,7 @@ void DOM_tree::contentExtraction() {
 // which is use as intermediate variable for passing value back from recursive
 void DOM_tree::get_threshold(tree_node *node) {
     tree_node *tmp_node;
-    if(tmp_node->tagname == "body") {
+    if(node->tagname.compare("body") == 0) {
         threshold = node->text_density; 
         return;
     }
@@ -76,7 +76,7 @@ void DOM_tree::extract_maintex(tree_node *node) {
     tree_node *tmp_node;
     std::string tagname = node->tagname;
 
-    if(node->text_density < threshold) return;
+    if(node->text_density < threshold && node->tagname != "root" && node->tagname != "html") return;
 
     else {
         if(
@@ -105,6 +105,25 @@ void DOM_tree::traverse(tree_node *node) {
         tmp_child = node->children[i];
         traverse(tmp_child);
     }
+}
+
+void DOM_tree::calculate_score(char *golden_text) {
+    double F1_score = 0.0;
+    double precision = 0.0;
+    double recall = 0.0;
+    std::string golden_string(golden_text);
+    double lcs_string_length = (double)lcs(content_buffer, golden_string);
+
+    std::cout << std::setw(7) << "       " << std::setw(10) << "precision" << std::setw(10) 
+    << "recall" << std::setw(10) << "F1 score" << std::endl;
+    precision = lcs_string_length / content_buffer.length();
+    recall = lcs_string_length / golden_string.length();
+    F1_score = 2 * precision * recall / ( precision + recall );
+    
+    std::cout << std::setw(7) << "File 1" << std::setw(10) 
+    << precision << std::setw(10) << recall << std::setw(10) 
+    << F1_score << std::endl;
+
 }
 
 tree_node* create_dom_tree(pt::ptree node, std::string tagname) {
@@ -150,4 +169,86 @@ tree_node* create_dom_tree(pt::ptree node, std::string tagname) {
     parent->text_density = (parent->char_count) / (parent->tag_count);
     
     return parent;
+}
+
+int lcs( std::string s1, std::string s2) {
+    size_t s1_length = s1.length();
+    size_t s2_length = s2.length();
+    struct lcs_info **lcs_array;
+    int i = 0, j = 0, answer = 0;
+
+    lcs_array = new struct lcs_info*[s1_length + 1];
+
+    for(i = 0; i < s1_length + 1; i++) 
+    {
+        lcs_array[i] = new struct lcs_info[s2_length + 1];
+    }
+
+    // initialize lcs_array
+    for( i = 0; i < s1_length + 1; i++)
+        for( j = 0; j < s2_length + 1; j++) {
+            lcs_array[i][j].data = 0;
+        }
+    
+    // string and lcs_array exist 1 element difference(lcs_array considered null character)
+    // hence index of lcs_array have to plus one to be correspond to the string
+    // for example abc and a, we got
+    //      null a b c
+    // null 0    0 0 0
+    // a    0    1 1 1    
+    for( i = 0; i < s1_length; i++) {
+        for ( j = 0; j < s2_length; j++) {
+            if(s1[i] == s2[j] ) {
+                lcs_array[ i + 1][j + 1].data = 1 + lcs_array[ i + 1 - 1][j + 1 - 1].data;
+                lcs_array[ i + 1][j + 1].direction = UPPER_LEFT;
+            }
+            else {
+                lcs_max(&lcs_array[ i + 1][ j + 1], &lcs_array[ i + 1 - 1][ j + 1], &lcs_array[i + 1][ j + 1 -1]);
+            }
+        }
+    }  
+
+    lcs_backtrace(lcs_array, s1_length, s2_length, s1);
+    std::cout << std::endl;
+    answer = lcs_array[s1_length][s2_length].data;
+
+    for(int i = 0; i < s1_length + 1; i++) {
+        delete [] lcs_array[i];
+    }
+    delete [] lcs_array;
+
+    return answer;
+}
+
+
+// the purpose of passing argument as pointer is to avoid call by value
+// which whould intrigate copy constructor and assignment operator
+void lcs_max( struct lcs_info * lcs_assign, struct lcs_info *lcs_1, struct lcs_info *lcs_2) {
+    if(lcs_1->data >= lcs_2->data) {
+        lcs_assign->data = lcs_1->data;
+        lcs_assign->direction = UP;
+    }
+
+    else {
+        lcs_assign->data = lcs_2->data;
+        lcs_assign->direction = LEFT;
+    }
+}
+
+void lcs_backtrace(struct lcs_info **lcs_ptr, size_t s1_length, size_t s2_length, std::string s1) {
+
+    if(s1_length == 0 || s2_length == 0) return;
+
+    if(lcs_ptr[s1_length][s2_length].direction == UPPER_LEFT) {
+       lcs_backtrace(lcs_ptr, s1_length - 1, s2_length - 1, s1);
+       //std::cout << s1[s1_length - 1]; // since lcs_array is one row and column wider than string
+    }
+
+    else if(lcs_ptr[s1_length][s2_length].direction == LEFT) {
+        lcs_backtrace(lcs_ptr, s1_length, s2_length - 1, s1);
+    }
+
+    else {
+        lcs_backtrace(lcs_ptr, s1_length - 1, s2_length, s1);
+    }
 }
