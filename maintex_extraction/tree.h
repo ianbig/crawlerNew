@@ -18,17 +18,20 @@ class DOM_tree;
 
 class tree_node {
     private:
-        size_t child_size;
+        //size_t child_size;
         size_t max_child_size;
-        tree_node **children;
+        //tree_node **children;
     public:
+        tree_node **children;
         std::string tagname;
         double char_count;
         double tag_count;
         double text_density;
+        size_t child_size;
         std::string value;
         tree_node();
         tree_node(const tree_node &copy);
+        ~tree_node();
         tree_node& operator= (const tree_node &rhs);
         void push_back(tree_node *node);
     friend class DOM_tree;
@@ -47,7 +50,8 @@ class DOM_tree {
         // <xmlattr>
         // <xml:lang>
         DOM_tree(tree_node *rroot);
-        //~DOM_tree();
+        // cleanup DOM_tree
+        ~DOM_tree();
         void contentExtraction();
         void traverse(tree_node *node);
         void get_threshold(tree_node *node); // have memory bug
@@ -67,8 +71,8 @@ struct lcs_info {
 // comment, syle, script is removed from dom_tree since most news article do not need javascript to show content
 // @ node is ptree node @tagnaem is current tagname in node 
 tree_node* create_dom_tree(pt::ptree node, std::string tagname);
-// clean up dom_tree
-void delete_tree();
+// 
+void delete_node(tree_node *node);
 // find out the longest common subsequence betweem s1 and s2
 int lcs(std::string s1, std::string s2);
 // find out max lcs between lcs_1 and lcs2

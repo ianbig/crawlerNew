@@ -9,6 +9,11 @@ tree_node::tree_node() {
     children = new tree_node*[INITSIZE];
 }
 
+tree_node::~tree_node() {
+    std::cerr << children;
+    delete [] children;
+}
+
 tree_node::tree_node(const tree_node &copy) {
     this->tagname = copy.tagname;
     this->char_count = copy.char_count;
@@ -49,6 +54,13 @@ void tree_node::push_back(tree_node *node) {
 DOM_tree::DOM_tree(tree_node *rroot) {
     this->root = rroot;
     content_buffer = "";
+}
+
+DOM_tree::~DOM_tree() {
+    for(int i = 0; i < root->child_size; i++) {
+        delete_node(root->children[i]);
+    }
+    delete [] root;
 }
 
 void DOM_tree::contentExtraction() {
@@ -169,6 +181,20 @@ tree_node* create_dom_tree(pt::ptree node, std::string tagname) {
     parent->text_density = (parent->char_count) / (parent->tag_count);
     
     return parent;
+}
+
+void delete_node(tree_node *node) {
+    // tree leaf have no children hence delete node and return
+    if( node->child_size == 0 ) {
+        delete [] node;
+        return;
+    }
+
+    for(int i = 0; i < node->child_size; i++) {
+        delete_node(node->children[i]);
+    }
+
+    delete [] node;
 }
 
 int lcs( std::string s1, std::string s2) {
