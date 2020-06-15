@@ -3,18 +3,7 @@
 //
 
 #include "Parser.h"
-#include <tidy/tidy.h>
-#include <tidy/buffio.h>
-#include <stdio.h>
-#include <errno.h>
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/xml_parser.hpp>
-#include <sstream>
-#include <map>
-#include "tree.h"
+
 
 namespace pt = boost::property_tree;
 std::map<std::string, int> stack;
@@ -158,14 +147,19 @@ int Parser::mainTexExtraction(char *buffer, char *url) {
     root = create_dom_tree(tree, "root"); // root means on top of tree = first call of function
     DOM_tree droot(root);
     droot.contentExtraction();
+
+    //std::cerr << droot.content_buffer << std::endl;
     
     // push information into record queue
     struct MemoryStruct tmp_chunk;
 
-    tmp_chunk.buffer = new char[strlen(buffer)];
-    memmove(tmp_chunk.buffer, buffer, strlen(buffer));
-    tmp_chunk.url = new char[strlen(url)];
+    tmp_chunk.size = strlen(buffer);
+    tmp_chunk.buffer = new char[droot.content_buffer.length() + 1];
+    memmove(tmp_chunk.buffer, droot.content_buffer.c_str(), droot.content_buffer.length());
+    tmp_chunk.buffer[droot.content_buffer.length()] = 0;
+    tmp_chunk.url = new char[strlen(url) + 1];
     memmove(tmp_chunk.url, url, strlen(url));
+    tmp_chunk.url[strlen(url)] = 0;
     RecordQueue.push_back(tmp_chunk);
 
     Size_OF_RecordQueue += sizeof(struct MemoryStruct);
@@ -192,7 +186,7 @@ void Parser::write_out_record(std::string filePath) {
     fout.open(filePath, std::ios::out | std::ios::app);
     for(int i = 0; i < RecordQueue.size(); i++) {
         chunk = RecordQueue.at(i);
-        fout << "@\n" << "@REC:" << std::endl << "@url:" << chunk.url << std::endl <<"@title:" << chunk.title
+        fout << "@\n" << "@REC:" << std::endl << "@url:" << chunk.url << std::endl
         << std::endl << "@size:" << chunk.size << std::endl <<"@body:" << chunk.buffer << std::endl;
     }
     fout.close();

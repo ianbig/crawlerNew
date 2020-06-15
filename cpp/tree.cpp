@@ -19,7 +19,6 @@ tree_node::tree_node(const tree_node &copy) {
     this->tag_count = copy.tag_count;
     this->text_density = copy.text_density;
     this->children = copy.children;
-    std::cerr << "tree_node copy constructor is called" << std::endl;
 }
 
 tree_node& tree_node::operator=(const tree_node &rhs) {
@@ -29,7 +28,6 @@ tree_node& tree_node::operator=(const tree_node &rhs) {
     this->tag_count = rhs.tag_count;
     this->text_density = rhs.text_density;
     this->children = rhs.children;
-    std::cerr << "Tree Node Assignment Operator is called !!!!" << std::endl;
     return *this;
 }
 
@@ -42,8 +40,6 @@ void tree_node::push_back(tree_node *node) {
            children[i] = tmp_tree[i];
        }
        delete [] tmp_tree;
-       std::cerr << "node " << tagname << " has been reallocate and old memory are deleted" 
-       << std::endl;
     } // reallocate
     children[child_size] = node;
     child_size += 1;

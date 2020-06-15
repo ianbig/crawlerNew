@@ -15,6 +15,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <tidy.h>
+#include <tidybuffio.h>
+#include <errno.h>
+#include <string>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
+#include <sstream>
+#include <map>
+#include "tree.h"
 #include "DataBase.h"
 #include "md5/src/md5.h"
 
@@ -29,42 +38,49 @@ struct MemoryStruct {
     size_t size;
     bool flag;
     char *url;
-    char *title;
+    //char *title;
     MemoryStruct() {
         buffer = NULL;
-        size = false;
-        flag = 0;
+        size = 0;
+        flag = false;
         url = NULL;
-        title = NULL;
+        //title = NULL;
     }
     ~MemoryStruct() {
         if(buffer != NULL)  {
             delete [] buffer;
             buffer = NULL;
         }
+        
+       
         if(url != NULL) {
             delete [] url;
             url = NULL;
         }
+        
+        /*
         if(title != NULL) {
             delete [] title;
             title = NULL;
         }
+        */
     }
+
     MemoryStruct(const MemoryStruct &tmp) {
         buffer = new char[strlen(tmp.buffer) + 1];
         url = new char[strlen(tmp.url) + 1];
-        title = new char[strlen(tmp.title) + 1];
+        //title = new char[strlen(tmp.title) + 1];
 
         memmove(buffer, tmp.buffer, strlen(tmp.buffer));
         memmove(url, tmp.url, strlen(tmp.url));
-        memmove(title, tmp.title, strlen(tmp.title));
+        //memmove(title, tmp.title, strlen(tmp.title));
         buffer[strlen(tmp.buffer)] = 0;
         url[strlen(tmp.url)] = 0;
-        title[strlen(tmp.title)] = 0;
+        //title[strlen(tmp.title)] = 0;
         size = tmp.size;
         flag = tmp.flag;
     } // copy constructor
+
     struct MemoryStruct& operator=(struct MemoryStruct &rhs) {
         if(this == &rhs) return *this;
 
@@ -75,19 +91,20 @@ struct MemoryStruct {
         if(url != NULL) {
             delete [] url;
         }
-
+        /*
         if(title != NULL) {
             delete [] title;
         }
+        */
         buffer = new char[strlen(rhs.buffer) + 1];
         url = new char[strlen(rhs.url) + 1];
-        title = new char[strlen(rhs.title) + 1];
+        //title = new char[strlen(rhs.title) + 1];
         memmove(buffer, rhs.buffer, strlen(rhs.buffer));
         memmove(url, rhs.url, strlen(rhs.url));
-        memmove(title, rhs.title, strlen(rhs.title));
+        //memmove(title, rhs.title, strlen(rhs.title));
         buffer[strlen(rhs.buffer)] = 0;
         url[strlen(rhs.url)] = 0;
-        title[strlen(rhs.title)] = 0;
+        //title[strlen(rhs.title)] = 0;
         size = rhs.size;
         flag = rhs.flag;
 

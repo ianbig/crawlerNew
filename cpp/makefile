@@ -1,8 +1,8 @@
 CC = g++
-OBJ = main.o crawler.o Parser.o DataBase.o
+OBJ = main.o crawler.o Parser.o DataBase.o tree.o
 REF_FILE = md5/src/md5.cpp
 CFLAG = -g
-LCFLAG = -lcurl -lmysqlcppconn8
+LCFLAG = -lcurl -lmysqlcppconn8 -ltidy
 INCLUDE = /home/ianliu/mysql-connector-c++-8.0.20-linux-glibc2.12-x86-64bit/include/
 LIB = /home/ianliu/mysql-connector-c++-8.0.20-linux-glibc2.12-x86-64bit/lib64
 CXX_STANDARD = -std=c++11
