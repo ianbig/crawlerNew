@@ -3,25 +3,28 @@
 //
 
 #include "Parser.h"
+#include <tidy/tidy.h>
+#include <tidy/buffio.h>
+#include <stdio.h>
+#include <errno.h>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
+#include <sstream>
+#include <map>
+#include "tree.h"
+
+namespace pt = boost::property_tree;
+std::map<std::string, int> stack;
 
 Parser::Parser() {
-    Size_OF_RecordQueue = sizeof(std::vector<std::string>);
+    Size_OF_RecordQueue = sizeof(std::vector<struct MemoryStruct>);
     size_parser_master_cache = sizeof(std::vector<std::string>);
     whiteList.push_back("https:\\/\\/star.ettoday\\.net[\\/|\\w\\/.\\?|=]+");
     whiteList.push_back("https:\\/\\/www.ettoday\\.net[\\/|\\w\\/.\\?|=]+\\.htm[?|=|\\w]*");
     blackList.push_back(".*ettoday.*");
-}
-
-size_t Parser::get_record_queue_size()  {
-    return Size_OF_RecordQueue;
-}
-
-size_t Parser::get_record_amount() {
-    return RecordQueue.size();
-}
-
-size_t Parser::get_master_parser_size() {
-    return size_parser_master_cache;
 }
 
 // 0 means success fetch; -1 means blackList website not fetch
@@ -70,7 +73,7 @@ int Parser::fetch(const char *url) {
     if(chunk.buffer == NULL) return ERROR_NO_CONTENT_FETCH;
     extractLink(chunk.buffer);
     if(chunk.flag == true)
-        //mainTexExtration(chunk.buffer, chunk.url);
+        mainTexExtraction(chunk.buffer, chunk.url);
 
     return FETCH_SUCCESS;
 }
@@ -105,8 +108,75 @@ size_t Parser::extractLink(char *buffer) {
             Parser_Master_Cache.push_back(url);
             size_parser_master_cache += url.length();
         }
-        //else std::cout << "ERROR: already in seendb" << std::endl;
     }
+    return 0;
+}
+
+int Parser::mainTexExtraction(char *buffer, char *url) {
+    TidyBuffer output = {0};
+    TidyBuffer errbuf = {0};
+    int rc = -1;
+    bool ok;
+    ctmbstr encoding = "utf8";
+
+
+    // convert html to xhtml
+    TidyDoc doc = tidyCreate(); // Initialize "document"
+    ok = tidyOptSetBool(doc, TidyXmlOut, yes); // Convert to XHTML
+    tidySetCharEncoding(doc,encoding);
+    
+    if(ok)
+        rc = tidySetErrorBuffer(doc, &errbuf); // Capture diagnostics
+    if(rc >= 0 ) {
+        rc = tidyParseString(doc, buffer); // Parse the input
+    }
+    if ( rc >= 0 )
+        rc = tidyCleanAndRepair( doc ); // Tidy it up!
+    if(rc >= 0)
+        rc = tidyRunDiagnostics(doc);
+    if( rc > 1)
+        rc = ( tidyOptSetBool(doc, TidyForceOutput, yes) ? rc : -1 ); // If error, force output.
+    if ( rc >= 0 )
+        rc = tidySaveBuffer( doc, &output );          // Pretty Print
+    
+   
+    // parse DOM and compute textdensity (Ci / Ti)
+    boost::property_tree::ptree tree;
+    std::stringstream ss;
+    ss << output.bp;
+
+    try {
+        boost::property_tree::xml_parser::read_xml(ss, tree);
+    }
+
+    catch(const boost::property_tree::xml_parser::xml_parser_error& ex) {
+        std::cerr << ex.message() << std::endl;
+    }
+
+    // create new dom tree and extract content
+    tree_node *root;
+    root = create_dom_tree(tree, "root"); // root means on top of tree = first call of function
+    DOM_tree droot(root);
+    droot.contentExtraction();
+    
+    // push information into record queue
+    struct MemoryStruct tmp_chunk;
+
+    tmp_chunk.buffer = new char[strlen(buffer)];
+    memmove(tmp_chunk.buffer, buffer, strlen(buffer));
+    tmp_chunk.url = new char[strlen(url)];
+    memmove(tmp_chunk.url, url, strlen(url));
+    RecordQueue.push_back(tmp_chunk);
+
+    Size_OF_RecordQueue += sizeof(struct MemoryStruct);
+    
+    // free up memory for maintex extraction
+
+    delete_node(root);
+    tidyBufFree( &output );
+    tidyBufFree( &errbuf );
+    tidyRelease( doc );
+
     return 0;
 }
 
@@ -139,6 +209,18 @@ void Parser::write_out_url(std::string filePath) {
     }
     fout.close();
     std::cerr << "write out url" << std::endl;
+}
+
+size_t Parser::get_record_queue_size()  {
+    return Size_OF_RecordQueue;
+}
+
+size_t Parser::get_record_amount() {
+    return RecordQueue.size();
+}
+
+size_t Parser::get_master_parser_size() {
+    return size_parser_master_cache;
 }
 
 size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)

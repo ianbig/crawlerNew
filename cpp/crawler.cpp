@@ -115,10 +115,8 @@ int crawler::start() {
             master_parser_size = parser.get_master_parser_size();
         }
         
-
-        real_record_size++; // debug usage
         
-        //real_record_size += parser.get_record_amount();
+        real_record_size += parser.get_record_amount();
         if(record_size_not_exceed == false ) write_out_commit_queue("./DB/uncommit.log"); // if record_size_not exceed is set to false either queue between filter and seed.log is exceed or queue between parser and ettoday.rec is excced size
         if(record_size_not_exceed == true ) std::cout << "Commit Queue is empty" << std::endl;
         parser.write_out_url("./DB/seed.log");

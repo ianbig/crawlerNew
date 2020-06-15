@@ -15,6 +15,8 @@ crawler.o: crawler.cpp crawler.h
 	$(CC) -O0 -c $(CXX_STANDARD) -I$(INCLUDE) crawler.cpp -D_GLIBCXX_USE_CXX11_ABI=0
 Parser.o: Parser.h Parser.cpp
 	$(CC) -O0 -c $(CXX_STANDARD) -I$(INCLUDE)  Parser.cpp -D_GLIBCXX_USE_CXX11_ABI=0
+tree.o: tree.h tree.cpp
+	$(CC) -O0 -c $(CXX_STANDARD) -I$(INCLUDE)  tree.cpp -D_GLIBCXX_USE_CXX11_ABI=0
 main.o: main.cpp
 	$(CC) -O0 -c $(CXX_STANDARD) -I$(INCLUDE) main.cpp -D_GLIBCXX_USE_CXX11_ABI=0
 

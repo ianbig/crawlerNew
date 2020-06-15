@@ -108,7 +108,7 @@ public:
     Parser();
     int fetch(const char *url);
     size_t extractLink(char *buffer);
-    //int mainTexExtration(char *buffer, char *url);
+    int mainTexExtraction(char *buffer, char *url);
     void write_out_record(std::string filePath);
     void write_out_url(std::string filePath);
     size_t get_record_queue_size();
