@@ -1,5 +1,5 @@
-#include <tidy/tidy.h>
-#include <tidy/buffio.h>
+#include <tidy.h>
+#include <tidybuffio.h>
 #include <stdio.h>
 #include <errno.h>
 #include <iostream>
@@ -34,10 +34,11 @@ int main (int argc, char **argv) {
     std::ifstream golden_text;
     std::ofstream out;
     char *buf, *gold_buf;
+    std::string path = "/home/ianliu/crawlerNew/maintex_extraction/output/"; 
 
-    fs.open("/Users/ianliu/Desktop/crawlerNew/maintex_extraction/output/0.htm", std::ios::in);
-    golden_text.open("/Users/ianliu/Desktop/crawlerNew/maintex_extraction/output/gold.txt", std::ios::in);
-    out.open("/Users/ianliu/Desktop/crawlerNew/maintex_extraction/output/0.xhtml", std::ios::out);
+    fs.open(path + "0.htm", std::ios::in);
+    golden_text.open(path + "gold.txt", std::ios::in);
+    out.open(path + "0.xhtml", std::ios::out);
 
     if(!fs.is_open()) {
         std::cerr << "ERROR: input file not open" << std::endl;
@@ -135,6 +136,7 @@ int main (int argc, char **argv) {
     // free error
     delete [] buf;
     delete [] gold_buf;
+    delete_node(root);
     tidyBufFree( &output );
     tidyBufFree( &errbuf );
     tidyRelease( doc );

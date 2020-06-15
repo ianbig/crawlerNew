@@ -10,8 +10,7 @@ tree_node::tree_node() {
 }
 
 tree_node::~tree_node() {
-    std::cerr << children;
-    delete [] children;
+
 }
 
 tree_node::tree_node(const tree_node &copy) {
@@ -42,7 +41,7 @@ void tree_node::push_back(tree_node *node) {
        for(int i = 0; i < child_size; i++ ) {
            children[i] = tmp_tree[i];
        }
-       delete tmp_tree;
+       delete [] tmp_tree;
        std::cerr << "node " << tagname << " has been reallocate and old memory are deleted" 
        << std::endl;
     } // reallocate
@@ -56,12 +55,6 @@ DOM_tree::DOM_tree(tree_node *rroot) {
     content_buffer = "";
 }
 
-DOM_tree::~DOM_tree() {
-    for(int i = 0; i < root->child_size; i++) {
-        delete_node(root->children[i]);
-    }
-    delete [] root;
-}
 
 void DOM_tree::contentExtraction() {
     get_threshold(root);
@@ -186,7 +179,8 @@ tree_node* create_dom_tree(pt::ptree node, std::string tagname) {
 void delete_node(tree_node *node) {
     // tree leaf have no children hence delete node and return
     if( node->child_size == 0 ) {
-        delete [] node;
+        delete [] node->children;
+        delete  node;
         return;
     }
 
@@ -194,7 +188,8 @@ void delete_node(tree_node *node) {
         delete_node(node->children[i]);
     }
 
-    delete [] node;
+    delete [] node->children;
+    delete node;
 }
 
 int lcs( std::string s1, std::string s2) {

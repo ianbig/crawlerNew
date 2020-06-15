@@ -51,7 +51,6 @@ class DOM_tree {
         // <xml:lang>
         DOM_tree(tree_node *rroot);
         // cleanup DOM_tree
-        ~DOM_tree();
         void contentExtraction();
         void traverse(tree_node *node);
         void get_threshold(tree_node *node); // have memory bug
