@@ -14,7 +14,7 @@ crawler::~crawler() {
     }
 }
 
-
+// start craweling webpage specified in seed.log
 int crawler::start() {
     char *tmp_url;
     size_t real_record_size = 0;
@@ -42,6 +42,7 @@ int crawler::start() {
             std::cerr << "ERROR: seed.log not exist" << std::endl;
             return ERROR_DOCUMENT_NOT_EXISTS;
         }
+        
         while ((file_check = getline(&line, &get_line_size, fstream) ) != -1) {
             line_size = strlen(line);
             copy_line = new char[line_size + 1];
@@ -51,12 +52,21 @@ int crawler::start() {
             free(line);
             line = NULL;
         } //load data in seed.log
+        if(line != NULL ) {
+            free(line);
+            line = NULL;
+        } // last call of getline would malloc memory again
+        
         fclose(fstream);
 
-        if(!record_size_not_exceed) {
+        if(!record_size_not_exceed) 
+        // this if statement prevent the first loop of start step into loading uncommit.log
+        // since we do not usually load thing from uncommit.log at first loop
+        // we expect uncommit.log is empty
+        {
             fstream = fopen("./DB/uncommit.log", "r+");
 
-            if(fstream) {
+            if(!fstream) {
                 std::cerr << "ERROR: uncommit.log not exists" << std::endl;
                 return ERROR_DOCUMENT_NOT_EXISTS;
             }
@@ -69,15 +79,20 @@ int crawler::start() {
                 commitQueue.push_back(copy_line);
                 free(line);
                 line = NULL;
-            } //load url in commit.log
+            } //load url in uncommit.log
             fclose(fstream);
         }
 
+        if(line != NULL ) {
+            free(line);
+            line = NULL;
+        } // last call of getline would malloc memory again
+        
         if(commitQueue.empty()) {
             std::cerr << "ERROR: seed.log is empty" << std::endl;
             return  ERROR_SEED_EMPTY;
         }
-
+        
         while(! commitQueue.empty() &&  ( record_size_not_exceed = (record_size <= MAX_RECORD_SIZE && master_parser_size <= MAX_URL_CAPACITY) ) ){
             tmp_url = commitQueue.front();
             tmp_url = strtok(tmp_url,"\n");
@@ -99,11 +114,16 @@ int crawler::start() {
             record_size = parser.get_record_queue_size();
             master_parser_size = parser.get_master_parser_size();
         }
+        
 
-        real_record_size += parser.get_record_amount();
-        if(record_size_not_exceed == false ) write_out_commit_queue("./DB/uncommit.log");
+        real_record_size++; // debug usage
+        
+        //real_record_size += parser.get_record_amount();
+        if(record_size_not_exceed == false ) write_out_commit_queue("./DB/uncommit.log"); // if record_size_not exceed is set to false either queue between filter and seed.log is exceed or queue between parser and ettoday.rec is excced size
+        if(record_size_not_exceed == true ) std::cout << "Commit Queue is empty" << std::endl;
         parser.write_out_url("./DB/seed.log");
         parser.write_out_record("./ettoday.rec");
+        
 
     }
     std::cout << "====== craweling finish =====" << std::endl;

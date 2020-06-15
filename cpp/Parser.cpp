@@ -60,6 +60,7 @@ int Parser::fetch(const char *url) {
                                           (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36");
         curl_easy_setopt(fetcher, CURLOPT_HTTPHEADER, plist);
         curl_easy_perform(fetcher);
+        curl_slist_free_all(plist);
         curl_easy_cleanup(fetcher);
     }
     curl_global_cleanup();
@@ -70,7 +71,6 @@ int Parser::fetch(const char *url) {
     extractLink(chunk.buffer);
     if(chunk.flag == true)
         //mainTexExtration(chunk.buffer, chunk.url);
-
 
     return FETCH_SUCCESS;
 }
@@ -143,20 +143,21 @@ void Parser::write_out_url(std::string filePath) {
 
 size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
 {
-    size_t realsize = size * nmemb;
+    size_t real_size = size * nmemb;
     struct MemoryStruct *mem = (struct MemoryStruct*) userp;
     char *tmp = new char[mem->size];
     if(mem->buffer != NULL) {
         memmove(tmp, mem->buffer, mem->size);
         delete [] mem->buffer;
     }
-    mem->buffer = new char[mem->size + realsize + 1];
+    mem->buffer = new char[mem->size + real_size + 1];
     memmove(mem->buffer, tmp, mem->size);
-    memmove(&(mem->buffer[mem->size]), contents, realsize);
-    mem->size += realsize;
+    memmove(&(mem->buffer[mem->size]), contents, real_size);
+    mem->size += real_size;
     mem->buffer[mem->size] = 0;
+    delete [] tmp;
 
-    return realsize;
+    return real_size;
 }
 
 size_t findCaseInsensitive(std::string data, std::string toSearch) {

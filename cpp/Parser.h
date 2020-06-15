@@ -64,7 +64,7 @@ struct MemoryStruct {
         title[strlen(tmp.title)] = 0;
         size = tmp.size;
         flag = tmp.flag;
-    }
+    } // copy constructor
     struct MemoryStruct& operator=(struct MemoryStruct &rhs) {
         if(this == &rhs) return *this;
 
@@ -92,7 +92,7 @@ struct MemoryStruct {
         flag = rhs.flag;
 
         return *this;
-    }
+    } // assignment operator
 };
 
 class Parser {
@@ -100,9 +100,9 @@ class Parser {
     std::vector<std::string> whiteList;
     std::vector<std::string> blackList;
     size_t Size_OF_RecordQueue;
-    std::vector<std::string> Parser_Master_Cache;
+    std::vector<std::string> Parser_Master_Cache; // cache between filter and seed.log
     DataBase tb;
-    size_t size_parser_master_cache;
+    size_t size_parser_master_cache; // size of cache between filter and seed.log
 
 public:
     Parser();
