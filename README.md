@@ -1,8 +1,8 @@
 # Crawler: a c++ approach
 
-### Devlopment platform: Ubuntu 18.04
+### I. Devlopment platform: Ubuntu 18.04
 
-### API installation
+### II. API installation
 
 ***X DevAPI***
  * install mysql version 8: follow the instruction in [this link](https://www.sqlshack.com/how-to-install-mysql-on-ubuntu-18-04/): look at the part that teach installing mysql8)
@@ -35,7 +35,7 @@ or you can follow the simplified version
      2. sudo cp libmysqlcppconn8.so.2 /usr/lib
 
 
-#### Build
+#### III. Build
 under the project ***CrawlerNew*** directory
 ```
 cd cpp
@@ -44,5 +44,5 @@ cd ../
 ./crawler
 ```
 
-### things to note
+### IV. things to note
 * Before you run the crawler, you have to place ***url of the website*** that you want to crawler under **seed.log**
