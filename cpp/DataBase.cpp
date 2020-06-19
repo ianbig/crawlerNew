@@ -5,6 +5,7 @@
 #include "DataBase.h"
 
 DataBase::DataBase(): sess("localhost", 33060, "root", "cht123456") {
+    sess.sql("CREATE DATABASE if not EXISTS crawler").execute();
     sess.sql("USE crawler").execute();
 }
 
