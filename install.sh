@@ -8,4 +8,7 @@ sudo apt-get install -y libcurl-dev
 wget -c https://dev.mysql.com/get/mysql-apt-config_0.8.15-1_all.deb
 sudo dpkg -i mysql-apt-config_0.8.15-1_all.deb
 sudo apt update
-sudo apt install MySQL-server
+sudo apt install mysql-server
+# install ltidy
+wget -c https://github.com/htacg/tidy-html5/releases/download/5.4.0/tidy-5.4.0-64bit.deb
+sudo dpkg -i tidy-5.4.0-64bit.deb
