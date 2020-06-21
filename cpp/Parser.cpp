@@ -11,9 +11,11 @@ std::map<std::string, int> stack;
 Parser::Parser() {
     Size_OF_RecordQueue = sizeof(std::vector<struct MemoryStruct>);
     size_parser_master_cache = sizeof(std::vector<std::string>);
-    whiteList.push_back("https:\\/\\/star.ettoday\\.net[\\/|\\w\\/.\\?|=]+");
-    whiteList.push_back("https:\\/\\/www.ettoday\\.net[\\/|\\w\\/.\\?|=]+\\.htm[?|=|\\w]*");
-    blackList.push_back(".*ettoday.*");
+    whiteList.push_back("https:.*article\\/\\d*");
+    whiteList.push_back("https:.*htm");
+    whiteList.push_back("https.*view[\\/|\\d|-]*");
+    blackList.push_back("facebook");
+    blackList.push_back("instagram");
 }
 
 // 0 means success fetch; -1 means blackList website not fetch
@@ -32,12 +34,14 @@ int Parser::fetch(const char *url) {
         if( std::regex_match(url, std::regex(tmpList)) ) chunk.flag = true;
     }
 
+    
     // not fetch black List
     for(int i = 0; i < blackList.size(); i++) {
         tmpList = blackList.at(i);
-        if( !std::regex_match(url, std::regex(tmpList)) )
+        if( findCaseInsensitive(url, tmpList) != std::string::npos )
             return ERROR_BLACKLIST_BLOCK;
     }
+    
 
     /* fetch the html into memory */
     curl_global_init(CURL_GLOBAL_SSL);
@@ -88,6 +92,10 @@ size_t Parser::extractLink(char *buffer) {
         }
         else if(std::regex_match(url, std::regex("\\/\\/www\\.ettoday\\.net\\/news[\\/|\\d|.|\\w|?|=]*"))) {
             url = "https:" + url;
+        }
+
+        else if (std::regex_match(url, std::regex("\\/article[\\/|\\d|.|\\w|?|=]*"))) {
+            url = "https://www.storm.mg" + url;
         }
 
         md5 = MD5(url).toStr();
@@ -186,8 +194,7 @@ void Parser::write_out_record(std::string filePath) {
     fout.open(filePath, std::ios::out | std::ios::app);
     for(int i = 0; i < RecordQueue.size(); i++) {
         chunk = RecordQueue.at(i);
-        fout << "@\n" << "@REC:" << std::endl << "@url:" << chunk.url << std::endl
-        << std::endl << "@size:" << chunk.size << std::endl <<"@body:" << chunk.buffer << std::endl;
+        fout << "@\n" << "@REC:" << std::endl << "@url:" << chunk.url << std::endl << "@size:" << chunk.size << std::endl <<"@body:" << chunk.buffer << std::endl;
     }
     fout.close();
     std::cerr << "Record write out" << std::endl;

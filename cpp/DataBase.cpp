@@ -7,6 +7,7 @@
 DataBase::DataBase(): sess("localhost", 33060, "root", "cht123456") {
     sess.sql("CREATE DATABASE if not EXISTS crawler").execute();
     sess.sql("USE crawler").execute();
+    sess.sql("Create table if not exists seendb (md5 CHAR(32))").execute();
 }
 
 

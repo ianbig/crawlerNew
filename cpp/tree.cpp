@@ -85,7 +85,7 @@ void DOM_tree::extract_maintex(tree_node *node) {
             tagname == "em" || tagname == "mark" || tagname == "small" || tagname == "del" ||
             tagname ==  "ins" || tagname == "sub" || tagname == "sup" || tagname == "h1" || 
             tagname == "h2" || tagname == "h3" || tagname == "h4" || tagname == "h5" ||
-            tagname == "h6") {
+            tagname == "h6" ) {
                 content_buffer += node->value;
         }
         for(int i = 0; i < node->child_size; i++) {

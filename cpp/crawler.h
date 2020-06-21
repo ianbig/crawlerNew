@@ -32,7 +32,7 @@ History:
 #ifndef CRAWLER_H
 #define CRAWLER_H
 
-#define MAX_RECORD_SIZE 1000
+#define MAX_RECORD_SIZE 10
 #define _GNU_SOUARCE
 #define MAX_RECORD 100
 #define ERROR_SEED_EMPTY -1

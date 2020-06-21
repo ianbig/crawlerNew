@@ -23,7 +23,7 @@ int crawler::start() {
     char *copy_line = NULL;
     size_t get_line_size = 0;
     bool record_size_not_exceed = true;
-    timeval start, end;
+    clock_t start, end;
     int parser_check;
 
     std::cout << "=========start craweling==========" << std::endl;
@@ -47,7 +47,7 @@ int crawler::start() {
             line_size = strlen(line);
             copy_line = new char[line_size + 1];
             copy_line[line_size] = 0;
-            memmove(copy_line, line, line_size);
+            memmove(copy_line, line, line_size); 
             commitQueue.push_back(copy_line);
             free(line);
             line = NULL;
@@ -94,6 +94,7 @@ int crawler::start() {
         }
         
         while(! commitQueue.empty() &&  ( record_size_not_exceed = (record_size <= MAX_RECORD_SIZE && master_parser_size <= MAX_URL_CAPACITY) ) ){
+            
             tmp_url = commitQueue.front();
             tmp_url = strtok(tmp_url,"\n");
             if(tmp_url == NULL) {
@@ -101,13 +102,16 @@ int crawler::start() {
                 commitQueue.erase(commitQueue.begin());
                 continue;
             }
-            gettimeofday(&start, NULL);
-            gettimeofday(&end, NULL);
-
-            while(  (double) ( TV_PER_SEC * (end.tv_sec-start.tv_sec) + (end.tv_usec - start.tv_usec) ) / TV_PER_SEC  < FLOW_CONTROL ) {
-                gettimeofday(&end, NULL);
-            } // flow control
             std::cout << tmp_url << std::endl;
+
+            // flow control
+            start = clock();
+            end = clock();
+            while (  ( (double)(end - start) / CLOCKS_PER_SEC ) < 0.5 ) {
+                end = clock();
+            }
+            start = clock();
+
             parser_check = parser.fetch(tmp_url);
             delete [] tmp_url;
             commitQueue.erase(commitQueue.begin());
